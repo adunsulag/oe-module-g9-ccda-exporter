@@ -1,19 +1,19 @@
 {
-  "name": "adunsulag/oe-module-custom-skeleton",
-  "description": "OpenEMR Custom Module Skeleton Starter Project",
+  "name": "adunsulag/oe-module-g9-ccda-exporter",
+  "description": "OpenEMR G9 CCDA Exporter Application",
   "type": "openemr-module",
   "license": "GPL-3.0",
   "authors": [
     {
       "name": "Stephen Nielson",
-      "email": "stephen@nielson.org",
+      "email": "snielson@discoverandchange.com",
       "role": "Developer"
     }
   ],
   "keywords": ["openemr", "openemr-module"],
   "minimum-stability": "stable",
   "autoload": {
-    "psr-4": {"OpenEMR\\Modules\\CustomModuleSkeleton\\": "src/"}
+    "psr-4": {"OpenEMR\\Modules\\G9CcdaExporter\\": "src/"}
   },
   "require": {
     "openemr/oe-module-installer-plugin": "^0.1.0",
@@ -22,6 +22,6 @@
     "nyholm/psr7": "^1.4"
   },
   "conflict": {
-    "openemr/openemr": "<6.0.0"
+    "openemr/openemr": "<6.1.0"
   }
 }

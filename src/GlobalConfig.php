@@ -1,10 +1,7 @@
 <?php
 
 /**
- * Bootstrap custom module skeleton.  This file is an example custom module that can be used
- * to create modules that can be utilized inside the OpenEMR system.  It is NOT intended for
- * production and is intended to serve as the barebone requirements you need to get started
- * writing modules that can be installed and used in OpenEMR.
+ * Global configuration for the module
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -14,19 +11,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Modules\CustomModuleSkeleton;
+namespace OpenEMR\Modules\G9CcdaExporter;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\Globals\GlobalSetting;
 
 class GlobalConfig
 {
-    const CONFIG_OPTION_TEXT = 'oe_skeleton_config_option_text';
-    const CONFIG_OPTION_ENCRYPTED = 'oe_skeleton_config_option_encrypted';
-    const CONFIG_OVERRIDE_TEMPLATES = "oe_skeleton_override_twig_templates";
-    const CONFIG_ENABLE_MENU = "oe_skeleton_add_menu_button";
-    const CONFIG_ENABLE_BODY_FOOTER = "oe_skeleton_add_body_footer";
-    const CONFIG_ENABLE_FHIR_API = "oe_skeleton_enable_fhir_api";
+    const CONFIG_CLIENT_ID = 'oe_g9_ccda_exporter_client_id';
+    const CONFIG_CLIENT_SECRET = 'oe_g9_ccda_exporter_client_secret';
 
     private $globalsArray;
 
@@ -47,7 +40,7 @@ class GlobalConfig
      */
     public function isConfigured()
     {
-        $keys = [self::CONFIG_OPTION_TEXT, self::CONFIG_OPTION_ENCRYPTED];
+        $keys = [self::CONFIG_CLIENT_ID, self::CONFIG_CLIENT_SECRET];
         foreach ($keys as $key) {
             $value = $this->getGlobalSetting($key);
             if (empty($value)) {
@@ -57,18 +50,26 @@ class GlobalConfig
         return true;
     }
 
-    public function getTextOption()
+    public function getModuleTitle() {
+        return xl("(g)(9) Data Export - $docRef CCDA Exporter");
+    }
+
+    public function getRequiredAppScopes() {
+        return 'launch/patient openid fhirUser patient/Patient.read patient/MedicationRequest.read patient/DocumentReference.read patient/DocumentReference.$docref patient/Document.read';
+    }
+
+    public function getClientId()
     {
-        return $this->getGlobalSetting(self::CONFIG_OPTION_TEXT);
+        return $this->getGlobalSetting(self::CONFIG_CLIENT_ID);
     }
 
     /**
      * Returns our decrypted value if we have one, or false if the value could not be decrypted or is empty.
      * @return bool|string
      */
-    public function getEncryptedOption()
+    public function getClientSecret()
     {
-        $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_ENCRYPTED);
+        $encryptedValue = $this->getGlobalSetting(self::CONFIG_CLIENT_SECRET);
         return $this->cryptoGen->decryptStandard($encryptedValue);
     }
 
@@ -80,40 +81,16 @@ class GlobalConfig
     public function getGlobalSettingSectionConfiguration()
     {
         $settings = [
-            self::CONFIG_OPTION_TEXT => [
-                'title' => 'Skeleton Module Text Option'
-                ,'description' => 'Example global config option with text'
+            self::CONFIG_CLIENT_ID => [
+                'title' => 'SMART App client id'
+                ,'description' => 'Public client_id of the registered ccda exporter client application'
                 ,'type' => GlobalSetting::DATA_TYPE_TEXT
                 ,'default' => ''
             ]
-            ,self::CONFIG_OPTION_ENCRYPTED => [
-                'title' => 'Skeleton Module Encrypted Option (Encrypted)'
-                ,'description' => 'Example of adding an encrypted global configuration value for your module.  Used for sensitive data'
+            ,self::CONFIG_CLIENT_SECRET => [
+                'title' => 'SMART App Private Key (Encrypted)'
+                ,'description' => 'Private secret_key of the registered ccda exporter client application'
                 ,'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
-                ,'default' => ''
-            ]
-            ,self::CONFIG_OVERRIDE_TEMPLATES => [
-                'title' => 'Skeleton Module enable overriding twig files'
-                ,'description' => 'Shows example of overriding a twig file'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
-                ,'default' => ''
-            ]
-            ,self::CONFIG_ENABLE_MENU => [
-                'title' => 'Skeleton Module add module menu item'
-                ,'description' => 'Shows example of adding a menu item to the system (requires logging out and logging in again)'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
-                ,'default' => ''
-            ]
-            ,self::CONFIG_ENABLE_BODY_FOOTER => [
-                'title' => 'Skeleton Module Enable Body Footer example.'
-                ,'description' => 'Shows example of adding a menu item to the system (requires logging out and logging in again)'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
-                ,'default' => ''
-            ]
-            ,self::CONFIG_ENABLE_FHIR_API => [
-                'title' => 'Skeleton Module Enable FHIR API Extension example.'
-                ,'description' => 'Shows example of extending the FHIR api with the skeleton module.'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
                 ,'default' => ''
             ]
         ];

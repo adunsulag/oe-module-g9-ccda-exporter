@@ -1,0 +1,20 @@
+/*
+ *   Copyright (c) 2022 Discover and Change @author Stephen Nielson <snielson@discoverandchange.com>
+ *   All rights reserved.
+ *   For License information see LICENSE.md in the root folder of this project.
+ */
+ #patient, #meds {
+    font-family: Monaco, monospace;
+    white-space: pre;
+    font-size: 13px;
+    height: 30vh;
+    overflow: scroll;
+    border: 1px solid #CCC;
+}
+.d-none {
+    display: none;
+}
+textarea {
+    height: 50vh;
+    width: 100vw;
+}

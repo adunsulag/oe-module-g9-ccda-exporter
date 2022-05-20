@@ -1,25 +1,34 @@
 <?php
 
-/**
- * Sample HTML page
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- *
- * @author    Stephen Nielson <stephen@nielson.org>
- * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
+use OpenEMR\Core\Header;
+use OpenEMR\Modules\G9CcdaExporter\Bootstrap;
+use OpenEMR\FHIR\Config\ServerConfig;
+require_once "../../../../globals.php";
+
+// Note we have to grab the event dispatcher from the globals kernel which is instantiated in globals.php
+$bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+$globalConfig = $bootstrap->getGlobalConfig();
 
 ?>
-<html>
-<title>Sample Module</title>
-<body>
-<h1>OpenEMR Custom Skeleton Index page</h1>
-<p>Congratulations you have installed and activated your OpenEMR module.  You can replace this page with anything you would like.</p>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <?php Header::setupHeader(); ?>
+        <meta charset="UTF-8" />
+        <title><?php echo text($globalConfig->getModuleTitle()); ?></title>
+        <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js"></script>
+        <link href="assets/css/exporter.css" media="screen" rel="stylesheet" />
+    </head>
+    <body class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <h1><?php echo text($globalConfig->getModuleTitle()); ?></h1>
+            </div>
+        </div>
 
-<ul>
-    <li><a href="globals-sample.php">Globals Sample</a></li>
-</ul>
-</body>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="launch.php">Launch CCDA Exporter</a></li>
+            <li class="nav-item"><a class="nav-link" href="register-app.php">Registration Instructions</a></li>
+        </ul>
+    </body>
 </html>

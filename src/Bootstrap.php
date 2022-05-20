@@ -14,7 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Modules\CustomModuleSkeleton;
+namespace OpenEMR\Modules\G9CcdaExporter;
 
 /**
  * Note the below use statements are importing classes from the OpenEMR core codebase
@@ -42,7 +42,7 @@ use OpenEMR\Modules\CustomModuleSkeleton\CustomSkeletonRestController;
 class Bootstrap
 {
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
-    const MODULE_NAME = "oe-module-custom-skeleton";
+    const MODULE_NAME = "oe-module-g9-ccda-exporter";
     /**
      * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
      */
@@ -59,11 +59,6 @@ class Bootstrap
     private $moduleDirectoryName;
 
     /**
-     * @var \Twig\Environment The twig rendering environment
-     */
-    private $twig;
-
-    /**
      * @var SystemLogger
      */
     private $logger;
@@ -75,12 +70,6 @@ class Bootstrap
         if (empty($kernel)) {
             $kernel = new Kernel();
         }
-
-        // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
-        // it here.
-        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
-        $twigEnv = $twig->getTwig();
-        $this->twig = $twigEnv;
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->eventDispatcher = $eventDispatcher;
@@ -97,8 +86,6 @@ class Bootstrap
         // we only add the rest of our event listeners and configuration if we have been fully setup and configured
         if ($this->globalsConfig->isConfigured()) {
             $this->registerMenuItems();
-            $this->registerTemplateEvents();
-            $this->subscribeToApiEvents();
         }
     }
 
@@ -120,7 +107,7 @@ class Bootstrap
         global $GLOBALS;
 
         $service = $event->getGlobalsService();
-        $section = xlt("Skeleton Module");
+        $section = xlt("G9 CCDA Exporter Module");
         $service->createSection($section, 'Portal');
 
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
@@ -142,19 +129,6 @@ class Bootstrap
     }
 
     /**
-     * We tie into any events dealing with the templates / page rendering of the system here
-     */
-    public function registerTemplateEvents()
-    {
-        if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_BODY_FOOTER)) {
-            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, [$this, 'renderMainBodyScripts']);
-        }
-        if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_OVERRIDE_TEMPLATES)) {
-            $this->eventDispatcher->addListener(TwigEnvironmentEvent::EVENT_CREATED, [$this, 'addTemplateOverrideLoader']);
-        }
-    }
-
-    /**
      * Add our javascript and css file for the module to the main tabs page of the system
      * @param RenderEvent $event
      */
@@ -166,38 +140,19 @@ class Bootstrap
         <?php
     }
 
-    /**
-     * @param TwigEnvironmentEvent $event
-     */
-    public function addTemplateOverrideLoader(TwigEnvironmentEvent $event)
-    {
-        try {
-            $twig = $event->getTwigEnvironment();
-            if ($twig === $this->twig) {
-                // we do nothing if its our own twig environment instantiated that we already setup
-                return;
-            }
-            // we make sure we can override our file system directory here.
-            $loader = $twig->getLoader();
-            if ($loader instanceof FilesystemLoader) {
-                $loader->prependPath($this->getTemplatePath());
-            }
-        } catch (LoaderError $error) {
-            $this->logger->errorLogCaller("Failed to create template loader", ['innerMessage' => $error->getMessage(), 'trace' => $error->getTraceAsString()]);
-        }
-    }
-
     public function registerMenuItems()
     {
-        if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_MENU)) {
-            /**
-             * @var EventDispatcherInterface $eventDispatcher
-             * @var array $module
-             * @global                       $eventDispatcher @see ModulesApplication::loadCustomModule
-             * @global                       $module @see ModulesApplication::loadCustomModule
-             */
-            $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomModuleMenuItem']);
-        }
+        /**
+         * @var EventDispatcherInterface $eventDispatcher
+         * @var array $module
+         * @global                       $eventDispatcher @see ModulesApplication::loadCustomModule
+         * @global                       $module @see ModulesApplication::loadCustomModule
+         */
+        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomModuleMenuItem']);
+    }
+
+    public function getPublicUrl($path) {
+        return "/interface/modules/custom_modules/" . SELF::MODULE_NAME . "/public/" . $path;
     }
 
     public function addCustomModuleMenuItem(MenuEvent $event)
@@ -208,10 +163,10 @@ class Bootstrap
         $menuItem->requirement = 0;
         $menuItem->target = 'mod';
         $menuItem->menu_id = 'mod0';
-        $menuItem->label = xlt("Custom Module Skeleton");
+        $menuItem->label = xlt("G9 CCDA Exporter");
         // TODO: pull the install location into a constant into the codebase so if OpenEMR changes this location it
         // doesn't break any modules.
-        $menuItem->url = "/interface/modules/custom_modules/oe-module-custom-skeleton/public/sample-index.php";
+        $menuItem->url = $this->getPublicUrl("sample-index.php");
         $menuItem->children = [];
 
         /**
@@ -254,59 +209,6 @@ class Bootstrap
         return $event;
     }
 
-    public function subscribeToApiEvents()
-    {
-        if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_FHIR_API)) {
-            $this->eventDispatcher->addListener(RestApiCreateEvent::EVENT_HANDLE, [$this, 'addCustomSkeletonApi']);
-            $this->eventDispatcher->addListener(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, [$this, 'addApiScope']);
-            $this->eventDispatcher->addListener(RestApiResourceServiceEvent::EVENT_HANDLE, [$this, 'addMetadataConformance']);
-        }
-    }
-
-    public function addCustomSkeletonApi(RestApiCreateEvent $event)
-    {
-        $apiController = new CustomSkeletonRestController();
-
-        /**
-         * To see the route definitions @see https://github.com/openemr/openemr/blob/master/_rest_routes.inc.php
-         */
-        $event->addToFHIRRouteMap('GET /fhir/CustomSkeletonResource', [$apiController, 'listResources']);
-        $event->addToFHIRRouteMap('GET /fhir/CustomSkeletonResource/:fhirId', [$apiController, 'getOneResource']);
-
-        /**
-         * Events must ALWAYS be returned
-         */
-        return $event;
-    }
-
-    /**
-     * Adds the webhook api scopes to the oauth2 scope validation events for the standard api.  This allows the webhook
-     * to be fired.
-     * @param RestApiScopeEvent $event
-     * @return RestApiScopeEvent
-     */
-    public function addApiScope(RestApiScopeEvent $event)
-    {
-        if ($event->getApiType() == RestApiScopeEvent::API_TYPE_FHIR) {
-            $scopes = $event->getScopes();
-            $scopes[] = 'user/CustomSkeletonResource.read';
-            $scopes[] = 'patient/CustomSkeletonResource.read';
-            // only add system scopes if they are actually enabled
-            if (\RestConfig::areSystemScopesEnabled())
-            {
-                $scopes[] = 'system/CustomSkeletonResource.read';
-            }
-            $event->setScopes($scopes);
-        }
-        return $event;
-    }
-
-    public function addMetadataConformance(RestApiResourceServiceEvent $event)
-    {
-        $event->setServiceClass(CustomSkeletonFHIRResourceService::class);
-        return $event;
-    }
-
     private function getPublicPath()
     {
         return self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
@@ -315,10 +217,5 @@ class Bootstrap
     private function getAssetPath()
     {
         return $this->getPublicPath() . 'assets' . DIRECTORY_SEPARATOR;
-    }
-
-    public function getTemplatePath()
-    {
-        return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
     }
 }
