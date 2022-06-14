@@ -1,4 +1,5 @@
 <?php
+
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\G9CcdaExporter\Bootstrap;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -27,7 +28,8 @@ $globalConfig = $bootstrap->getGlobalConfig();
         </div>
         <div class="row">
             <div class="col">
-                <h4><?php echo xlt("Current Patient"); ?></h4>
+                <h4><?php echo xlt("Current Patient"); ?>
+                <span class="patient-name-title d-none"></span></h4>
                 <div id="patient"><?php echo xlt("Loading"); ?>...</div>
                 </div>
         </div>
@@ -45,7 +47,7 @@ $globalConfig = $bootstrap->getGlobalConfig();
                     <input class="form-control datepicker" type='text' id='end' value="" />
             </div>
             <div class="col-4">
-                <button class="btn btn-primary" id='ccda'><?php echo xlt("Generate CCDA"); ?></button>
+                <button class="btn btn-primary" disabled="disabled" id='ccda'><?php echo xlt("Generate CCDA"); ?></button>
                 <p id="progress" class='d-none'>Generating...</p>
             </div>
         </div>

@@ -16,22 +16,22 @@ $scopes = $globalsConfig->getRequiredAppScopes();
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Launch <?php echo text($globalConfig->getModuleTitle()); ?> Registration</title>
+        <title><?php echo xlt("Launch Registration"); ?> - <?php echo text($globalsConfig->getModuleTitle()); ?></title>
         <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.js"></script>
     </head>
     <body>
         <?php if ($globalsConfig->isConfigured()) : ?>
-        <p>Current registered application: <?php echo text($clientId); ?></p>
+        <p><?php echo xlt("Current registered application"); ?>-<?php echo text($clientId); ?></p>
         <?php endif; ?>
         <p>
-            You must register a new smart app with the following settings:
+            <?php echo xlt("You must register a new smart app with the following settings"); ?>:
         </p>
         <ul>
-                <li>Redirect URI: <?php echo text($redirectUri); ?></li>
-                <li>Launch URI: <?php echo text($launchUri); ?></li>
-                <li>Scopes: <?php echo text($scopes); ?></li>
+                <li><?php echo xlt("Redirect URI"); ?>: <?php echo text($redirectUri); ?></li>
+                <li><?php echo xlt("Launch URI"); ?>: <?php echo text($launchUri); ?></li>
+                <li><?php echo xlt("Scopes"); ?>: <?php echo text($scopes); ?></li>
             </ul>
-        <a href="/interface/smart/register-app.php">Register Application Here</a>
+        <a href="/interface/smart/register-app.php"><?php echo xlt("Register Application Here"); ?></a>
         <?php
         /*
             <!-- eventually we will auto register an application -->

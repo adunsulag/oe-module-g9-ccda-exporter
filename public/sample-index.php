@@ -3,6 +3,7 @@
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\G9CcdaExporter\Bootstrap;
 use OpenEMR\FHIR\Config\ServerConfig;
+
 require_once "../../../../globals.php";
 
 // Note we have to grab the event dispatcher from the globals kernel which is instantiated in globals.php
@@ -27,7 +28,9 @@ $globalConfig = $bootstrap->getGlobalConfig();
         </div>
 
         <ul class="nav flex-column">
+            <?php if ($globalConfig->isConfigured()) : ?>
             <li class="nav-item"><a class="nav-link" href="launch.php">Launch CCDA Exporter</a></li>
+            <?php endif; ?>
             <li class="nav-item"><a class="nav-link" href="register-app.php">Registration Instructions</a></li>
         </ul>
     </body>

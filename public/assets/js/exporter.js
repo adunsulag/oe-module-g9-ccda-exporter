@@ -23,6 +23,7 @@ var storedClient = null;
                 }
 
                 function generateCCDA(client) {
+                    document.getElementById('ccda').setAttribute("disabled", "disabled");
                     let resource = "DocumentReference/$docref";
                     let start = document.getElementById('start').value || "";
                     let end= document.getElementById('end').value || "";
@@ -53,14 +54,14 @@ var storedClient = null;
                     .then(function(result) {
                         console.log("Result of operation is ", result);
                         if (!result.entry.length) {
-                            console.error("Failed to generate ccda document");
-                            return;
+                            throw new Error("Failed to generate ccda document");
                         }
                         let ccdaUrl = result.entry[0].resource.content[0].attachment.url;
                         if (ccdaUrl) {
                             ccdaUrl = ccdaUrl.replace("/fhir","");
                             client.request(ccdaUrl)
                             .then(fileResponse => {
+                                document.getElementById('ccda').removeAttribute("disabled");
                                 if (typeof fileResponse == 'string') {
                                     document.getElementById('progress').classList.add('d-none');
                                     console.log("ccdaText is ", fileResponse);
@@ -69,11 +70,17 @@ var storedClient = null;
                                     document.getElementById('ccda-contents-container').classList.remove('d-none');
 
                                 } else {
-                                    console.error("Server returned something other than a ccda text document");
+                                    throw new Error("Server returned something other than a ccda text document");
                                 }
                             });
+                        } else {
+                            throw new Error("Failed to receive ccda url");
                         }
-                    });
+                    })
+                    .catch(function(error) {
+                        console.error(error);
+                        document.getElementById('ccda').removeAttribute("disabled");
+                    })
                 }
 
 		    storedClient = client;
@@ -83,11 +90,19 @@ var storedClient = null;
                 // Render the current patient (or any error)
                 client.patient.read().then(
                     function(pt) {
+
+                        // now we can enable our buttons
+                        document.getElementById('ccda').removeAttribute("disabled");
+                        document.getElementById('ccda').addEventListener('click', generateCCDA.bind(null, client));
+                        document.getElementById('download').addEventListener('click', downloadCCDA);
+
                         document.getElementById("patient").innerText = JSON.stringify(pt, null, 4);
                         console.log("patient is ", pt);
                         if (pt.name && pt.name.length) {
                             exportFileNameParts = pt.name[0].given.concat(exportFileNameParts);
                             exportFileNameParts.unshift(pt.name[0].family);
+                            document.querySelector('.patient-name-title').innerHTML = pt.name[0].given.concat([pt.name[0].family]).join(" ");
+                            document.querySelector('.patient-name-title').classList.remove("d-none");
                         }
                     },
                     function(error) {
@@ -97,8 +112,6 @@ var storedClient = null;
 
                 // setup our generateccda
                 window.document.addEventListener("DOMContentLoaded", function() {
-                    document.getElementById('ccda').addEventListener('click', generateCCDA.bind(null, client));
-                    document.getElementById('download').addEventListener('click', downloadCCDA);
                 });
 
 		}).catch(console.error);

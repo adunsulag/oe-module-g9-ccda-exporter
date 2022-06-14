@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FHIR Resource Controller example for handling and responding to
  *
@@ -46,7 +47,7 @@ class CustomSkeletonRestController
      * @param HttpRestRequest
      * @return FHIRBundle
      */
-    public function listResources(HttpRestRequest $request) : FHIRBundle
+    public function listResources(HttpRestRequest $request): FHIRBundle
     {
 
         if ($request->isPatientRequest()) {
@@ -71,7 +72,7 @@ class CustomSkeletonRestController
      * @param HttpRestRequest $request
      * @return ResponseInterface
      */
-    public function getOneResource($fhirId, HttpRestRequest $request) : CustomSkeletonFHIRResource
+    public function getOneResource($fhirId, HttpRestRequest $request): CustomSkeletonFHIRResource
     {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient

@@ -83,10 +83,7 @@ class Bootstrap
     {
         $this->addGlobalSettings();
 
-        // we only add the rest of our event listeners and configuration if we have been fully setup and configured
-        if ($this->globalsConfig->isConfigured()) {
-            $this->registerMenuItems();
-        }
+        $this->registerMenuItems();
     }
 
     /**
@@ -151,8 +148,9 @@ class Bootstrap
         $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomModuleMenuItem']);
     }
 
-    public function getPublicUrl($path) {
-        return "/interface/modules/custom_modules/" . SELF::MODULE_NAME . "/public/" . $path;
+    public function getPublicUrl($path)
+    {
+        return "/interface/modules/custom_modules/" . self::MODULE_NAME . "/public/" . $path;
     }
 
     public function addCustomModuleMenuItem(MenuEvent $event)

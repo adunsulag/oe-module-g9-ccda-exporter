@@ -50,12 +50,14 @@ class GlobalConfig
         return true;
     }
 
-    public function getModuleTitle() {
-        return xl("(g)(9) Data Export - $docRef CCDA Exporter");
+    public function getModuleTitle()
+    {
+        return xl("(g)(9) Data Export - \$docRef CCDA Exporter");
     }
 
-    public function getRequiredAppScopes() {
-        return 'launch/patient openid fhirUser patient/Patient.read patient/MedicationRequest.read patient/DocumentReference.read patient/DocumentReference.$docref patient/Document.read';
+    public function getRequiredAppScopes()
+    {
+        return 'launch/patient openid fhirUser patient/Patient.read patient/DocumentReference.read patient/DocumentReference.$docref patient/Document.read';
     }
 
     public function getClientId()
