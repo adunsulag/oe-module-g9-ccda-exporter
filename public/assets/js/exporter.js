@@ -48,7 +48,7 @@ var storedClient = null;
                     document.getElementById('progress').classList.remove('d-none');
                     client.request({
                         url: "/" + operation
-                        ,method: "GET"
+                        ,method: "POST"
                     })
                     //client.patient.request(operation)
                     .then(function(result) {

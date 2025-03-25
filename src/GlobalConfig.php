@@ -28,7 +28,7 @@ class GlobalConfig
      */
     private $cryptoGen;
 
-    public function __construct(array &$globalsArray)
+    public function __construct(array $globalsArray)
     {
         $this->globalsArray = $globalsArray;
         $this->cryptoGen = new CryptoGen();
@@ -40,7 +40,7 @@ class GlobalConfig
      */
     public function isConfigured()
     {
-        $keys = [self::CONFIG_CLIENT_ID, self::CONFIG_CLIENT_SECRET];
+        $keys = [self::CONFIG_CLIENT_ID];
         foreach ($keys as $key) {
             $value = $this->getGlobalSetting($key);
             if (empty($value)) {
@@ -57,7 +57,7 @@ class GlobalConfig
 
     public function getRequiredAppScopes()
     {
-        return 'launch/patient openid fhirUser patient/Patient.read patient/DocumentReference.read patient/DocumentReference.$docref patient/Document.read';
+        return 'launch/patient openid fhirUser patient/Patient.read patient/DocumentReference.read patient/DocumentReference.$docref patient/Binary.read';
     }
 
     public function getClientId()
